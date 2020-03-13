@@ -1,7 +1,7 @@
 from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVar
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL
 from tkinter.ttk import Progressbar, LabelFrame, Separator
-from img_process import identifyImg
+from img_process import identifyImg, addImg
 from db_util import createDB
 
 class AppMain:
@@ -50,7 +50,7 @@ class AppMain:
         self.frmButtons.pack(anchor='nw')
 
         # Cria os widgets
-        self.btnOpenFile = Button(self.frmButtons, text="Abrir arquivo", command=self.openFile)
+        self.btnOpenFile = Button(self.frmButtons, text="Abrir arquivo", command=self.openFileToAnalyse)
         self.btnAnalyzeImg = Button(self.frmButtons, text="Analisar Imagem", command=self.analyzeImg, state=DISABLED)
         self.btnOpenFile.pack(side=LEFT)
         self.btnAnalyzeImg.pack(side=LEFT)
@@ -66,7 +66,7 @@ class AppMain:
         self.frmButtons.pack(anchor='nw')
 
         # Cria os widgets
-        self.btnOpenFile = Button(self.frmButtons, text="Abrir arquivo", command=self.openFile)
+        self.btnOpenFile = Button(self.frmButtons, text="Abrir arquivo", command=self.openFileToAdd)
         self.btnAddImg = Button(self.frmButtons, text="Adicionar Runa", command=self.addImg, state=DISABLED)
         self.btnOpenFile.pack(side=LEFT)
         self.btnAddImg.pack(side=LEFT)
@@ -78,7 +78,7 @@ class AppMain:
         # Titulo da tela
         self.setTitle("Ver Runas")
 
-    def openFile(self):
+    def openFileToAnalyse(self):
         # Abre a janela para selecionar o arquivo
         self.filename = filedialog.askopenfilename()
 
@@ -99,6 +99,29 @@ class AppMain:
             self.lblFile.pack(side=LEFT)
 
             # Habilita o botão para análise da imagem
+            self.btnAnalyzeImg["state"] = NORMAL
+
+    def openFileToAdd(self):
+        # Abre a janela para selecionar o arquivo
+        self.filename = filedialog.askopenfilename()
+
+        # Validações do arquivo
+        if self.filename == '':
+            pass
+        elif self.filename.split('.')[-1] != 'png':
+            messagebox.showinfo("Arquivo inválido!", "A imagem deve ter extensão .png")
+        else:
+            # Cria um frame para os widgets
+            self.frmTextImg = Frame(self.frmMain)
+            self.frmTextImg.pack(anchor='nw')
+
+            # Cria os widgets
+            self.lblFileText = Label(self.frmTextImg, text="Imagem selecionada: ")
+            self.lblFile = Label(self.frmTextImg, text=self.filename)
+            self.lblFileText.pack(side=LEFT)
+            self.lblFile.pack(side=LEFT)
+
+            # Habilita o botão para adicionar a imagem
             self.btnAddImg["state"] = NORMAL
 
     def analyzeImg(self):
