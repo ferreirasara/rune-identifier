@@ -3,3 +3,6 @@ def identifyImg(filename):
 
 def calcHuMoments(filename):
     pass
+
+def addImg(filename):
+    pass
