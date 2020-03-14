@@ -1,170 +1,78 @@
 from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVar
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL
-from tkinter.ttk import Progressbar, LabelFrame, Separator
+from tkinter import ttk
 from img_process import identifyImg, addImg
 from db_util import createDB
 
 class AppMain:
     def __init__(self, parent):
-        createDB()
-        # Cria o frame principal
-        self.frmMain = Frame(parent)
-        self.frmMain.pack(side=LEFT, anchor='n')
+        self.tabControl = ttk.Notebook(parent, height=400)
 
-        # Cria o frame lateral
-        self.frmSide = Frame(parent)
-        self.frmSide.pack(side=RIGHT, anchor='n')
+        self.tabHome = ttk.Frame(self.tabControl)
+        self.tabAnalyze = ttk.Frame(self.tabControl)
+        self.tabAdd = ttk.Frame(self.tabControl)
+        self.tabShow = ttk.Frame(self.tabControl)
 
-        # Adiciona os botões ao frame lateral
-        self.lblfrmActions = LabelFrame(self.frmSide, text="Ações:")
-        self.lblfrmActions.pack()
-        self.btnIdentifyRune = Button(self.lblfrmActions, text="Identificar Runa", command=self.identifyRune)
-        self.btnAddRune = Button(self.lblfrmActions, text="Adicionar Runa", command=self.addRune)
-        self.btnShowRunes = Button(self.lblfrmActions, text="Ver Runas", command=self.showRunes)
-        self.btnQuit = Button(self.lblfrmActions, text="Sair", command=parent.quit)
-        self.btnIdentifyRune.pack(fill=X)
-        self.btnAddRune.pack(fill=X)
-        self.btnShowRunes.pack(fill=X)
-        self.btnQuit.pack(fill=X)
+        self.tabControl.add(self.tabHome, text="Home")
+        self.tabControl.add(self.tabAnalyze, text="Analisar Runa")
+        self.tabControl.add(self.tabAdd, text="Adicionar Runa")
+        self.tabControl.add(self.tabShow, text="Mostrar Runas")
 
-    def start(self):
-        # Adiciona os textos iniciais à tela principal
-        self.lblTitle = Label(self.frmMain, text="Bem vindo!", font=("Arial Bold", 25))
-        self.lblWelcomeText = Label(self.frmMain, text="Para analisar uma runa e descobrir o que ela significa, clique em Identificar Runa.", font=("Arial", 10))
-        self.lblTitle.pack()
-        self.lblWelcomeText.pack()
+        self.tabControl.pack(fill=BOTH)
+        
+        # ========== HOME ==========
+        self.lblTitle = Label(self.tabHome, text="Bem vindo!", font=("Arial Bold", 25))
+        self.lblTitle.grid(row=0, column=0, stick='w')
 
-    def destroyChildrenFrmMain(self):
-        # Destroi todos os widgets filhos do frame principal
-        for children in self.frmMain.winfo_children():
-            children.destroy()
+        self.lblWelcomeText1 = Label(self.tabHome, text="Para analisar uma runa e descobrir o que ela significa, clique em Identificar Runa.", font=("Arial", 10))
+        self.lblWelcomeText1.grid(row=1, column=0, stick='w')
 
-    def identifyRune(self):
-        self.destroyChildrenFrmMain()
+        self.lblWelcomeText2 = Label(self.tabHome, text="Para adicionar uma runa à base de dados, clique em Adicionar Runa.", font=("Arial", 10))
+        self.lblWelcomeText2.grid(row=2, column=0, stick='w')
 
-        # Titulo da tela
-        self.setTitle("Identificar Runa")
+        # ========== Identify rune ==========
+        self.btnOpenFileAnalyze = Button(self.tabAnalyze, text="Abrir arquivo", command=self.openFileToAnalyze)
+        self.btnOpenFileAnalyze.grid(row=0, column=0, stick='w')
 
-        # Cria um frame para os widgets
-        self.frmButtons = Frame(self.frmMain)
-        self.frmButtons.pack(anchor='nw')
+        self.lblFileAnalyze = Label(self.tabAnalyze, text="Imagem selecionada: ")
+        self.lblFileAnalyze.grid(row=1, column=0, columnspan=2, stick='w')
 
-        # Cria os widgets
-        self.btnOpenFile = Button(self.frmButtons, text="Abrir arquivo", command=self.openFileToAnalyse)
-        self.btnAnalyzeImg = Button(self.frmButtons, text="Analisar Imagem", command=self.analyzeImg, state=DISABLED)
-        self.btnOpenFile.pack(side=LEFT)
-        self.btnAnalyzeImg.pack(side=LEFT)
+        self.btnAnalyze = Button(self.tabAnalyze, text="Analisar Imagem", state=DISABLED)
+        self.btnAnalyze.grid(row=2, column=0, stick='w')
 
-    def addRune(self):
-        self.destroyChildrenFrmMain()
+        self.lblResultText = Label(self.tabAnalyze, text="Resultado: ")
+        self.lblResultText.grid(row=3, column=0, columnspan=2, stick='w')
 
-        # Titulo da tela
-        self.setTitle("Adicionar Runa")
+        # ========== Add rune ==========
+        self.btnOpenFileAdd = Button(self.tabAdd, text="Abrir arquivo", command=self.openFileToAdd)
+        self.btnOpenFileAdd.grid(row=0, column=0, stick='w')
 
-        # Cria um frame para os widgets
-        self.frmButtons = Frame(self.frmMain)
-        self.frmButtons.pack(anchor='nw')
+        self.lblFileAdd = Label(self.tabAdd, text="Imagem selecionada: ")
+        self.lblFileAdd.grid(row=1, column=0, columnspan=2, stick='w')
 
-        # Cria os widgets
-        self.btnOpenFile = Button(self.frmButtons, text="Abrir arquivo", command=self.openFileToAdd)
-        self.btnAddImg = Button(self.frmButtons, text="Adicionar Runa", command=self.addImg, state=DISABLED)
-        self.btnOpenFile.pack(side=LEFT)
-        self.btnAddImg.pack(side=LEFT)
+        self.btnAddImg = Button(self.tabAdd, text="Adicionar Imagem", state=DISABLED)
+        self.btnAddImg.grid(row=2, column=0, stick='w')
 
-    def showRunes(self):
-        for children in self.frmMain.winfo_children():
-            children.destroy()
+        # ========== Show runes ==========
 
-        # Titulo da tela
-        self.setTitle("Ver Runas")
-
-    def openFileToAnalyse(self):
-        # Abre a janela para selecionar o arquivo
+    def openFileToAnalyze(self):
         self.filename = filedialog.askopenfilename()
 
-        # Validações do arquivo
         if self.filename == '':
             pass
         elif self.filename.split('.')[-1] != 'png':
             messagebox.showinfo("Arquivo inválido!", "A imagem deve ter extensão .png")
         else:
-            # Cria um frame para os widgets
-            self.frmTextImg = Frame(self.frmMain)
-            self.frmTextImg.pack(anchor='nw')
-
-            # Cria os widgets
-            self.lblFileText = Label(self.frmTextImg, text="Imagem selecionada: ")
-            self.lblFile = Label(self.frmTextImg, text=self.filename)
-            self.lblFileText.pack(side=LEFT)
-            self.lblFile.pack(side=LEFT)
-
-            # Habilita o botão para análise da imagem
-            self.btnAnalyzeImg["state"] = NORMAL
+            self.lblFileAnalyze["text"] += self.filename
+            self.btnAnalyze["state"] = NORMAL
 
     def openFileToAdd(self):
-        # Abre a janela para selecionar o arquivo
         self.filename = filedialog.askopenfilename()
 
-        # Validações do arquivo
         if self.filename == '':
             pass
         elif self.filename.split('.')[-1] != 'png':
             messagebox.showinfo("Arquivo inválido!", "A imagem deve ter extensão .png")
         else:
-            # Cria um frame para os widgets
-            self.frmTextImg = Frame(self.frmMain)
-            self.frmTextImg.pack(anchor='nw')
-
-            # Cria os widgets
-            self.lblFileText = Label(self.frmTextImg, text="Imagem selecionada: ")
-            self.lblFile = Label(self.frmTextImg, text=self.filename)
-            self.lblFileText.pack(side=LEFT)
-            self.lblFile.pack(side=LEFT)
-
-            # Habilita o botão para adicionar a imagem
+            self.lblFileAdd["text"] += self.filename
             self.btnAddImg["state"] = NORMAL
-
-    def analyzeImg(self):
-        # Desabilita o botão para análise da imagem
-        self.btnAnalyzeImg["state"] = DISABLED
-
-        # Cria um frame para os widgets
-        self.frmAnalyze = Frame(self.frmMain)
-        self.frmAnalyze.pack(anchor='nw')
-
-        # Cria os textos
-        self.lblTextAnalyze = Label(self.frmAnalyze, text="Analisando...")
-
-        # Analisa a imagem
-        identifyImg(self.filename)
-
-        # Exibe o resultado
-        self.lblTextAnalyze["text"] = "Análise completa!"
-        self.lblTextResult = Label(self.frmAnalyze, text="Resultado:")
-        self.lblTextAnalyze.pack()
-        self.lblTextResult.pack()
-
-    def addImg(self):
-        # Desabilita o botão para análise da imagem
-        self.btnAddImg["state"] = DISABLED
-
-        # Cria um frame para os widgets
-        self.frmAdd = Frame(self.frmMain)
-        self.frmAdd.pack(anchor='nw')
-
-        # Cria os textos
-        self.lblTextAdd = Label(self.frmAdd, text="")
-
-        # Adiciona a imagem
-        addImg(self.filename)
-
-        # Exibe o resultado
-        self.lblTextAdd["text"] = "Imagem adicionada!"
-        self.lblTextAdd.pack()
-
-    def setTitle(self, title):
-        # Titulo da tela
-        self.lblTitle = Label(self.frmMain, text=title, font=("Arial Bold", 25))
-        self.lblTitle.pack()
-        self.sprTitle = Separator(self.frmMain, orient=HORIZONTAL)
-        self.sprTitle.pack(fill=X)
