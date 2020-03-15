@@ -1,5 +1,5 @@
 from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVar
-from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL
+from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END
 from tkinter import ttk
 from img_process import identifyImg, addImg
 from db_util import createDB
@@ -37,21 +37,30 @@ class AppMain:
         self.lblFileAnalyze = Label(self.tabAnalyze, text="Imagem selecionada: ")
         self.lblFileAnalyze.grid(row=1, column=0, columnspan=2, stick='w')
 
-        self.btnAnalyze = Button(self.tabAnalyze, text="Analisar Imagem", state=DISABLED)
+        self.btnAnalyze = Button(self.tabAnalyze, text="Analisar Imagem", state=DISABLED, command=self.analyzeImag)
         self.btnAnalyze.grid(row=2, column=0, stick='w')
-
-        self.lblResultText = Label(self.tabAnalyze, text="Resultado: ")
-        self.lblResultText.grid(row=3, column=0, columnspan=2, stick='w')
 
         # ========== Add rune ==========
         self.btnOpenFileAdd = Button(self.tabAdd, text="Abrir arquivo", command=self.openFileToAdd)
         self.btnOpenFileAdd.grid(row=0, column=0, stick='w')
 
-        self.lblFileAdd = Label(self.tabAdd, text="Imagem selecionada: ")
-        self.lblFileAdd.grid(row=1, column=0, columnspan=2, stick='w')
+        self.lblFile = Label(self.tabAdd, text="Imagem selecionada: ")
+        self.lblFile.grid(row=1, column=0, stick='e')
+        self.lblFileName = Label(self.tabAdd)
+        self.lblFileName.grid(row=1, column=1, stick='w') 
 
-        self.btnAddImg = Button(self.tabAdd, text="Adicionar Imagem", state=DISABLED)
-        self.btnAddImg.grid(row=2, column=0, stick='w')
+        self.lblName = Label(self.tabAdd, text="Nome:")
+        self.lblName.grid(row=2, column=0, stick='e')
+        self.entName = ttk.Entry(self.tabAdd)
+        self.entName.grid(row=2, column=1, stick='w')
+
+        self.lblDescription = Label(self.tabAdd, text="Descrição:")
+        self.lblDescription.grid(row=3, column=0, stick='e')
+        self.entDescription = ttk.Entry(self.tabAdd)
+        self.entDescription.grid(row=3, column=1, stick='w')
+
+        self.btnAddImg = Button(self.tabAdd, text="Adicionar Imagem", state=DISABLED, command=self.addImg)
+        self.btnAddImg.grid(row=4, column=0)
 
         # ========== Show runes ==========
 
@@ -74,5 +83,11 @@ class AppMain:
         elif self.filename.split('.')[-1] != 'png':
             messagebox.showinfo("Arquivo inválido!", "A imagem deve ter extensão .png")
         else:
-            self.lblFileAdd["text"] += self.filename
+            self.lblFileName["text"] = self.filename
             self.btnAddImg["state"] = NORMAL
+
+    def analyzeImag(self):
+        pass
+
+    def addImg(self):
+        addImg(self.filename)
