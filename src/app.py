@@ -63,18 +63,21 @@ class AppMain:
         self.btnAddImg.grid(row=4, column=0)
 
         # ========== Show runes ==========
-        self.trvRunes = ttk.Treeview(self.tabShow)
-        self.trvRunes.grid(row=0, column=0)
+        self.btnRefreshRunes = Button(self.tabShow, text="Atualizar", command=self.refreshRunes)
+        self.btnRefreshRunes.grid(row=0, column=0, stick='w')
+
+        self.trvRunes = ttk.Treeview(self.tabShow, height=600)
+        self.trvRunes.grid(row=1, column=0)
         
         self.trvRunes["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
         self.trvRunes.column("name", width=100)
-        self.trvRunes.column("hu1", width=71)
-        self.trvRunes.column("hu2", width=71)
-        self.trvRunes.column("hu3", width=71)
-        self.trvRunes.column("hu4", width=71)
-        self.trvRunes.column("hu5", width=71)
-        self.trvRunes.column("hu6", width=71)
-        self.trvRunes.column("hu7", width=71)
+        self.trvRunes.column("hu1", width=120)
+        self.trvRunes.column("hu2", width=120)
+        self.trvRunes.column("hu3", width=120)
+        self.trvRunes.column("hu4", width=120)
+        self.trvRunes.column("hu5", width=120)
+        self.trvRunes.column("hu6", width=120)
+        self.trvRunes.column("hu7", width=120)
         self.trvRunes.heading("name", text="Nome")
         self.trvRunes.heading("hu1", text="Hu[1]")
         self.trvRunes.heading("hu2", text="Hu[2]")
@@ -86,11 +89,7 @@ class AppMain:
 
         self.trvRunes["show"] = "headings"
 
-        runes = searchRunes()
-        i = 0
-        for rune in runes:
-            self.trvRunes.insert("", i, values=(rune[0], rune[1], rune[2], rune[3], rune[4], rune[5], rune[6], rune[7]))
-            i += 1
+        self.refreshRunes()
 
     def openFileToAnalyze(self):
         self.filename = filedialog.askopenfilename()
@@ -115,6 +114,11 @@ class AppMain:
             self.btnAddImg["state"] = NORMAL
             self.entName["state"] = NORMAL
             self.entDescription["state"] = NORMAL
+            self.entName.focus_set()
+            self.entName.delete(0, 'end')
+            self.entName.insert(0, "")
+            self.entDescription.delete(0, 'end')
+            self.entDescription.insert(0, "")
 
     def analyzeImag(self):
         identifyImg(self.filename)
@@ -131,3 +135,13 @@ class AppMain:
 
             self.lblSuccessAddImg = Label(self.tabAdd, text="Imagem adicionada com sucesso!")
             self.lblSuccessAddImg.grid(row=5, column=0, stick='w', columnspan=2)
+
+    def refreshRunes(self):
+        for item in self.trvRunes.get_children():
+            self.trvRunes.delete(item)
+
+        runes = searchRunes()
+        i = 0
+        for rune in runes:
+            self.trvRunes.insert("", i, values=(rune[0], rune[1], rune[2], rune[3], rune[4], rune[5], rune[6], rune[7]))
+            i += 1

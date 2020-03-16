@@ -4,7 +4,7 @@ from db_util import createDB
 
 createDB()
 root = Tk()
-root.geometry('600x400')
+root.geometry('950x600')
 
 root.title("Identificador de Runas")
 
