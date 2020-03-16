@@ -2,7 +2,7 @@ from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVa
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END
 from tkinter import ttk
 from img_process import identifyImg, addImg
-from db_util import searchRunes
+from db_util import searchRunes, delRune
 
 class AppMain:
     def __init__(self, parent):
@@ -66,10 +66,14 @@ class AppMain:
         self.btnRefreshRunes = Button(self.tabShow, text="Atualizar", command=self.refreshRunes)
         self.btnRefreshRunes.grid(row=0, column=0, stick='w')
 
+        self.btnDelRune = Button(self.tabShow, text="Excluir", command=self.delRune)
+        self.btnDelRune.grid(row=0, column=1, stick='w')
+
         self.trvRunes = ttk.Treeview(self.tabShow, height=600)
-        self.trvRunes.grid(row=1, column=0)
+        self.trvRunes.grid(row=1, column=0, columnspan=40)
         
-        self.trvRunes["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
+        self.trvRunes["columns"] = ("id", "name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
+        self.trvRunes.column("id", width=15)
         self.trvRunes.column("name", width=100)
         self.trvRunes.column("hu1", width=120)
         self.trvRunes.column("hu2", width=120)
@@ -78,6 +82,7 @@ class AppMain:
         self.trvRunes.column("hu5", width=120)
         self.trvRunes.column("hu6", width=120)
         self.trvRunes.column("hu7", width=120)
+        self.trvRunes.heading("id", text="ID")
         self.trvRunes.heading("name", text="Nome")
         self.trvRunes.heading("hu1", text="Hu[1]")
         self.trvRunes.heading("hu2", text="Hu[2]")
@@ -145,3 +150,9 @@ class AppMain:
         for rune in runes:
             self.trvRunes.insert("", i, values=(rune[0], rune[1], rune[2], rune[3], rune[4], rune[5], rune[6], rune[7]))
             i += 1
+
+    def delRune(self):
+        currentItem = self.trvRunes.focus()
+        print(int(self.trvRunes.item(currentItem)["values"][0]))
+        delRune(int(self.trvRunes.item(currentItem)["values"][0]))
+        self.refreshRunes()

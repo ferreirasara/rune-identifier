@@ -47,8 +47,18 @@ def searchRunes():
     conn = sqlite3.connect('db.sqlite3')
     cursor = conn.cursor()
     cursor.execute(
-        """SELECT name, hu_1, hu_2, hu_3, hu_4, hu_5, hu_6, hu_7 from TRune
+        """SELECT id_rune, name, hu_1, hu_2, hu_3, hu_4, hu_5, hu_6, hu_7 from TRune
            INNER JOIN THuMoments
            ON TRune.id_hu_moments = THuMoments.id_hu_moments"""
     )
     return cursor.fetchall()
+
+def delRune(idRune):
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute(
+        """DELETE FROM TRune WHERE id_rune = (? )""",
+        (idRune, )
+    )
+    conn.commit()
+    conn.close()
