@@ -2,7 +2,7 @@ from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVa
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END
 from tkinter import ttk
 from img_process import identifyImg, addImg
-from db_util import createDB
+from db_util import searchRunes
 
 class AppMain:
     def __init__(self, parent):
@@ -51,12 +51,12 @@ class AppMain:
 
         self.lblName = Label(self.tabAdd, text="Nome:")
         self.lblName.grid(row=2, column=0, stick='e')
-        self.entName = ttk.Entry(self.tabAdd)
+        self.entName = ttk.Entry(self.tabAdd, state=DISABLED)
         self.entName.grid(row=2, column=1, stick='w')
 
         self.lblDescription = Label(self.tabAdd, text="Descrição:")
         self.lblDescription.grid(row=3, column=0, stick='e')
-        self.entDescription = ttk.Entry(self.tabAdd)
+        self.entDescription = ttk.Entry(self.tabAdd, state=DISABLED)
         self.entDescription.grid(row=3, column=1, stick='w')
 
         self.btnAddImg = Button(self.tabAdd, text="Adicionar Imagem", state=DISABLED, command=self.addImg)
@@ -86,7 +86,11 @@ class AppMain:
 
         self.trvRunes["show"] = "headings"
 
-        self.trvRunes.insert("", 0, values=("Exemple 01", "0.00162663", "3.11619e-07", "3.61005e-10", "1.44485e-10", "-2.55279e-20", "-7.57625e-14", "2.09098e-20"))
+        runes = searchRunes()
+        i = 0
+        for rune in runes:
+            self.trvRunes.insert("", i, values=(rune[0], rune[1], rune[2], rune[3], rune[4], rune[5], rune[6], rune[7]))
+            i += 1
 
     def openFileToAnalyze(self):
         self.filename = filedialog.askopenfilename()
@@ -109,9 +113,21 @@ class AppMain:
         else:
             self.lblFileName["text"] = self.filename
             self.btnAddImg["state"] = NORMAL
+            self.entName["state"] = NORMAL
+            self.entDescription["state"] = NORMAL
 
     def analyzeImag(self):
-        pass
+        identifyImg(self.filename)
 
     def addImg(self):
-        addImg(self.filename)
+        if self.entName.get() == '' or self.entDescription.get() == '':
+            messagebox.showinfo("Atenção!", "Todos os campos devem ser preenchidos.")
+        else:
+            addImg(self.filename, self.entName.get(), self.entDescription.get())
+
+            self.btnAddImg["state"] = DISABLED
+            self.entName["state"] = DISABLED
+            self.entDescription["state"] = DISABLED
+
+            self.lblSuccessAddImg = Label(self.tabAdd, text="Imagem adicionada com sucesso!")
+            self.lblSuccessAddImg.grid(row=5, column=0, stick='w', columnspan=2)
