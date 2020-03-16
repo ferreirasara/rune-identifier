@@ -63,6 +63,30 @@ class AppMain:
         self.btnAddImg.grid(row=4, column=0)
 
         # ========== Show runes ==========
+        self.trvRunes = ttk.Treeview(self.tabShow)
+        self.trvRunes.grid(row=0, column=0)
+        
+        self.trvRunes["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
+        self.trvRunes.column("name", width=100)
+        self.trvRunes.column("hu1", width=71)
+        self.trvRunes.column("hu2", width=71)
+        self.trvRunes.column("hu3", width=71)
+        self.trvRunes.column("hu4", width=71)
+        self.trvRunes.column("hu5", width=71)
+        self.trvRunes.column("hu6", width=71)
+        self.trvRunes.column("hu7", width=71)
+        self.trvRunes.heading("name", text="Nome")
+        self.trvRunes.heading("hu1", text="Hu[1]")
+        self.trvRunes.heading("hu2", text="Hu[2]")
+        self.trvRunes.heading("hu3", text="Hu[3]")
+        self.trvRunes.heading("hu4", text="Hu[4]")
+        self.trvRunes.heading("hu5", text="Hu[5]")
+        self.trvRunes.heading("hu6", text="Hu[6]")
+        self.trvRunes.heading("hu7", text="Hu[7]")
+
+        self.trvRunes["show"] = "headings"
+
+        self.trvRunes.insert("", 0, values=("Exemple 01", "0.00162663", "3.11619e-07", "3.61005e-10", "1.44485e-10", "-2.55279e-20", "-7.57625e-14", "2.09098e-20"))
 
     def openFileToAnalyze(self):
         self.filename = filedialog.askopenfilename()
