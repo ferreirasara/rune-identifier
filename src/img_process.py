@@ -2,7 +2,7 @@ import numpy
 import matplotlib.pyplot as plt
 from cv2 import imread, IMREAD_GRAYSCALE, THRESH_BINARY, moments, HuMoments, threshold
 from math import copysign, log10
-from db_util import saveImg
+from db_util import saveImg, searchRunes
 
 def calcHuMoments(filename):
     im = imread(filename, IMREAD_GRAYSCALE)
@@ -19,9 +19,7 @@ def calcHuMoments(filename):
     return huMoments
 
 def identifyImg(filename):
-    print(filename)
     huMoments = calcHuMoments(filename)
-    print(huMoments)
 
 def addImg(filename, name, description):
     huMoments = calcHuMoments(filename)
