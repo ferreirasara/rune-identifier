@@ -62,3 +62,15 @@ def delRune(idRune):
     )
     conn.commit()
     conn.close()
+
+def getRune(idRune):
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute(
+        """SELECT name, description from TRune
+           INNER JOIN THuMoments
+           ON TRune.id_hu_moments = THuMoments.id_hu_moments
+           WHERE id_rune = (?) """,
+        (idRune, )
+    )
+    return cursor.fetchall()

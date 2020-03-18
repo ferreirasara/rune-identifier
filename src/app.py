@@ -2,7 +2,7 @@ from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVa
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END
 from tkinter import ttk
 from img_process import identifyImg, addImg
-from db_util import searchRunes, delRune
+from db_util import searchRunes, delRune, getRune
 
 class AppMain:
     def __init__(self, parent):
@@ -134,7 +134,15 @@ class AppMain:
             self.entDescription.insert(0, "")
 
     def analyzeImag(self):
-        identifyImg(self.filename)
+        result = identifyImg(self.filename)
+        rune = getRune(result[0])
+        precision = 0 - result[1]
+        self.lblResult = ttk.Label(self.tabAnalyze, text="Encontrada runa com " + str(precision) + " de desvio.")
+        self.lblResultName = ttk.Label(self.tabAnalyze, text=rune[0][0], font=("Arial Bold", 25))
+        self.lblResultDescription = ttk.Label(self.tabAnalyze, text=rune[0][1])
+        self.lblResult.grid(row=3, column=0, columnspan=2, stick='w')
+        self.lblResultName.grid(row=4, column=0, columnspan=2, stick='w')
+        self.lblResultDescription.grid(row=5, column=0, columnspan=2, stick='w')
 
     def addImg(self):
         if self.entName.get() == '' or self.entDescription.get() == '':
