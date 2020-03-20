@@ -1,7 +1,7 @@
 import numpy
 import matplotlib.pyplot as plt
 from cv2 import imread, IMREAD_GRAYSCALE, THRESH_BINARY, moments, HuMoments, threshold
-from math import copysign, log10
+from math import copysign, log10, sqrt, pow
 from db_util import saveImg, searchRunes
 
 def calcHuMoments(filename):
@@ -27,21 +27,24 @@ def identifyImg(filename):
         results.append([rune[0], rune[1], score])
 
     results.sort()
+    print(results)
     return calcBestResult(results)
 
-def addImg(filename, name, description):
+def addImg(filename, idRuneInfo):
     huMoments = calcHuMoments(filename)
-    saveImg(name, description, huMoments)
+    saveImg(idRuneInfo, huMoments)
+    return huMoments
 
 def calcScore(rune, huMoments):
-    score = 0
-    score += float(huMoments[0] - rune[2])
-    score += float(huMoments[1] - rune[3])
-    score += float(huMoments[2] - rune[4])
-    score += float(huMoments[3] - rune[5])
-    score += float(huMoments[4] - rune[6])
-    score += float(huMoments[5] - rune[7])
-    score += float(huMoments[6] - rune[8])
+    score = sqrt(
+        pow(huMoments[0] - rune[2], 2) +
+        pow(huMoments[1] - rune[3], 2) +
+        pow(huMoments[2] - rune[4], 2) +
+        pow(huMoments[3] - rune[5], 2) +
+        pow(huMoments[4] - rune[6], 2) +
+        pow(huMoments[5] - rune[7], 2) +
+        pow(huMoments[6] - rune[8], 2)
+    )
     return score
 
 def calcBestResult(results):
@@ -50,5 +53,4 @@ def calcBestResult(results):
         if abs(result[2]) < best[1]:
             best[0] = result[0]
             best[1] = result[2]
-
     return best
