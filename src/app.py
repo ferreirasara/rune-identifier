@@ -2,7 +2,7 @@ from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVa
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END
 from tkinter import ttk
 from img_process import identifyImg, addImg
-from db_util import searchRunes, getRune, getRuneNames, getIdRuneInfo
+from db_util import searchAvgRunes, searchAllRunes, getRune, getRuneNames, getIdRuneInfo
 
 class AppMain:
     def __init__(self, parent):
@@ -116,9 +116,8 @@ class AppMain:
         self.trvRunes = ttk.Treeview(self.tabShow, height=500)
         self.trvRunes.grid(row=1, column=0, columnspan=2)
         
-        self.trvRunes["columns"] = ("id", "name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
-        self.trvRunes.column("id", width=15)
-        self.trvRunes.column("name", width=80)
+        self.trvRunes["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
+        self.trvRunes.column("name", width=100)
         self.trvRunes.column("hu1", width=90)
         self.trvRunes.column("hu2", width=90)
         self.trvRunes.column("hu3", width=90)
@@ -126,7 +125,6 @@ class AppMain:
         self.trvRunes.column("hu5", width=90)
         self.trvRunes.column("hu6", width=90)
         self.trvRunes.column("hu7", width=90)
-        self.trvRunes.heading("id", text="ID")
         self.trvRunes.heading("name", text="Nome")
         self.trvRunes.heading("hu1", text="Hu[1]")
         self.trvRunes.heading("hu2", text="Hu[2]")
@@ -146,7 +144,7 @@ class AppMain:
         if self.filename == '':
             pass
         elif self.filename.split('.')[-1] not in ('png', 'jpg'):
-            messagebox.showinfo("Arquivo inválido!", "A imagem deve ter extensão .png ou .jgp")
+            messagebox.showinfo("Arquivo inválido!", "O arquivo deve ser uma imagem.")
         else:
             self.lblFileAnalyze["text"] = "Imagem selecionada: " + self.filename
             self.btnAnalyze["state"] = NORMAL
@@ -156,15 +154,12 @@ class AppMain:
 
         if self.filename == '':
             pass
-        elif self.filename.split('.')[-1] not in ('png', 'jpg'):
-            messagebox.showinfo("Arquivo inválido!", "A imagem deve ter extensão .png ou .jgp")
+        elif self.filename.split('.')[-1] not in ('png', 'jpg', 'gif'):
+            messagebox.showinfo("Arquivo inválido!", "O arquivo deve ser uma imagem.")
         else:
             self.lblFile["text"] = "Imagem selecionada: " + self.filename
             self.btnAddImg["state"] = NORMAL
             self.entName["state"] = NORMAL
-            self.entName.focus_set()
-            self.entName.delete(0, 'end')
-            self.entName.insert(0, "")
 
     def analyzeImag(self):
         result = identifyImg(self.filename)
@@ -186,26 +181,24 @@ class AppMain:
         if self.entName.get() == '':
             messagebox.showinfo("Atenção!", "Todos os campos devem ser preenchidos.")
         else:
-            try:
-                huMoments = addImg(self.filename, getIdRuneInfo(self.entName.get()))
+            huMoments = addImg(self.filename, getIdRuneInfo(self.entName.get()))
 
-                self.btnAddImg["state"] = DISABLED
-                self.entName["state"] = DISABLED
+            self.btnAddImg["state"] = DISABLED
+            self.entName["state"] = DISABLED
 
-                self.lblSuccessAddImg1["text"] = "Imagem adicionada com sucesso!"
-                self.lblSuccessAddImg2["text"] = "Momentos de Hu: ["
-                for i in range(0, 6):
-                    self.lblSuccessAddImg2["text"] += str(round(float(huMoments[i]), 6)) + ", "
-                self.lblSuccessAddImg2["text"] += str(round(float(huMoments[6]), 6)) + "]"
-            except Exception as e:
-                messagebox.showinfo("Erro!", e)
+            self.lblSuccessAddImg1["text"] = "Imagem adicionada com sucesso!"
+            self.lblSuccessAddImg2["text"] = "Momentos de Hu: ["
+            for i in range(0, 6):
+                self.lblSuccessAddImg2["text"] += str(round(huMoments[i], 6)) + ", "
+            self.lblSuccessAddImg2["text"] += str(round(huMoments[6], 6)) + "]"
 
     def refreshRunes(self):
         for item in self.trvRunes.get_children():
             self.trvRunes.delete(item)
 
-        runes = searchRunes()
+        # runes = searchAvgRunes()
+        runes = searchAllRunes()
         i = 0
         for rune in runes:
-            self.trvRunes.insert("", i, values=(rune[0], rune[1], round(rune[2], 6), round(rune[3], 6), round(rune[4], 6), round(rune[5], 6), round(rune[6], 6), round(rune[7], 6), round(rune[8], 6)))
+            self.trvRunes.insert("", i, values=(rune[1], round(rune[2], 6), round(rune[3], 6), round(rune[4], 6), round(rune[5], 6), round(rune[6], 6), round(rune[7], 6), round(rune[8], 6)))
             i += 1

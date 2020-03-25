@@ -54,7 +54,7 @@ def saveImg(idRuneInfo, huMoments):
     cursor.execute(
         """INSERT INTO THuMoments (hu_1, hu_2, hu_3, hu_4, hu_5, hu_6, hu_7)
            VALUES (?,?,?,?,?,?,?)""",
-        (float(huMoments[0]), float(huMoments[1]), float(huMoments[2]), float(huMoments[3]), float(huMoments[4]), float(huMoments[5]), float(huMoments[6]))
+        (huMoments[0], huMoments[1], huMoments[2], huMoments[3], huMoments[4], huMoments[5], huMoments[6])
     )
     id_hu_moments = cursor.lastrowid
     cursor.execute(
@@ -65,7 +65,7 @@ def saveImg(idRuneInfo, huMoments):
     conn.commit()
     conn.close()
 
-def searchRunes():
+def searchAvgRunes():
     conn = sqlite3.connect('db.sqlite3')
     cursor = conn.cursor()
     cursor.execute(
@@ -84,6 +84,27 @@ def searchRunes():
                     INNER JOIN THuMoments
                         ON TRune.id_hu_moments = THuMoments.id_hu_moments
                     GROUP BY TRuneInfo.name"""
+    )
+    return cursor.fetchall()
+
+def searchAllRunes():
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute(
+        """SELECT   TRune.id_rune,
+                    TRuneInfo.name,
+                    THuMoments.hu_1,
+                    THuMoments.hu_2,
+                    THuMoments.hu_3,
+                    THuMoments.hu_4,
+                    THuMoments.hu_5,
+                    THuMoments.hu_6,
+                    THuMoments.hu_7
+                    FROM TRune
+                    INNER JOIN TRuneInfo
+                        ON TRune.id_runeinfo = TRuneInfo.id_runeinfo
+                    INNER JOIN THuMoments
+                        ON TRune.id_hu_moments = THuMoments.id_hu_moments"""
     )
     return cursor.fetchall()
 
