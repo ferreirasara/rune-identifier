@@ -19,6 +19,7 @@ def identifyImg(filename):
     runes = searchAllRunes()
     results = []
     for rune in runes:
+        # Calcula a pontuacao de cada runa retornada do BD
         score = calcScore(rune, huMoments)
         results.append([rune[0], rune[1], score])
 
@@ -31,6 +32,7 @@ def addImg(filename, idRuneInfo):
     return huMoments
 
 def calcScore(rune, huMoments):
+    # Calcula a distancia entre pontos
     score = sqrt(
         pow(huMoments[0] - rune[2], 2) +
         pow(huMoments[1] - rune[3], 2) +

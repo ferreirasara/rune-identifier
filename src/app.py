@@ -1,140 +1,161 @@
 from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVar, PhotoImage
-from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END
+from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END, BOTTOM
 from tkinter import ttk
-from img_process import identifyImg, addImg
+from img_process import identifyImg, addImg, calcHuMoments
 from db_util import searchAvgRunes, searchAllRunes, getRune, getRuneNames, getIdRuneInfo
 
 class AppMain:
     def __init__(self, parent):
-        self.tabControl = ttk.Notebook(parent, height=500)
+        # ========== NOTEBOOK ==========
+        self.TAB_CONTROL = ttk.Notebook(parent, height=500)
+        
+        # ========== NOTEBOOK TABS ==========
 
-        self.tabHome = ttk.Frame(self.tabControl)
-        self.tabAnalyze = ttk.Frame(self.tabControl)
-        self.tabAdd = ttk.Frame(self.tabControl)
-        self.tabShow = ttk.Frame(self.tabControl)
+        self.TAB_HOME = ttk.Frame(self.TAB_CONTROL)
+        self.TAB_ANALYZE = ttk.Frame(self.TAB_CONTROL)
+        self.TAB_ADD = ttk.Frame(self.TAB_CONTROL)
+        self.TAB_SHOW = ttk.Frame(self.TAB_CONTROL)
 
-        self.tabControl.add(self.tabHome, text="Home")
-        self.tabControl.add(self.tabAnalyze, text="Analisar Runa")
-        self.tabControl.add(self.tabAdd, text="Adicionar Runa")
-        self.tabControl.add(self.tabShow, text="Mostrar Runas")
+        self.TAB_CONTROL.add(self.TAB_HOME, text="Home")
+        self.TAB_CONTROL.add(self.TAB_ANALYZE, text="Analisar Runa")
+        self.TAB_CONTROL.add(self.TAB_ADD, text="Adicionar Runa")
+        self.TAB_CONTROL.add(self.TAB_SHOW, text="Mostrar Runas")
 
-        self.tabControl.pack(fill=BOTH)
+        self.TAB_CONTROL.pack(fill=BOTH)
 
         # ========== ICONS ==========
-        self.icoUpload = PhotoImage(file="icons\\upload.png")
-        self.icoSearch = PhotoImage(file="icons\\search.png")
-        self.icoPlus = PhotoImage(file="icons\\plus.png")
-        self.icoRefresh = PhotoImage(file="icons\\refresh.png")
-        self.icoBin = PhotoImage(file="icons\\bin.png")
+        self.ICO_UPLOAD = PhotoImage(file="icons\\upload.png")
+        self.ICO_SEARCH = PhotoImage(file="icons\\search.png")
+        self.ICO_PLUS = PhotoImage(file="icons\\plus.png")
+        self.ICO_REFRESH = PhotoImage(file="icons\\refresh.png")
+        self.ICO_BIN = PhotoImage(file="icons\\bin.png")
         
         # ========== HOME ==========
-        self.lblTitle = ttk.Label(self.tabHome, text="Bem vindo!", font=("Arial Bold", 25))
-        self.lblTitle.grid(row=0, column=0, stick='w')
+        self.LABEL_HOME_TITLE = ttk.Label(self.TAB_HOME, text="Bem vindo!", font=("Arial Bold", 25))
+        self.LABEL_HOME_TITLE.grid(row=0, column=0, stick='w')
 
-        self.lblWelcomeText1 = ttk.Label(self.tabHome, text="Para analisar uma runa e descobrir o que ela significa, clique em Identificar Runa.", font=("Arial", 10))
-        self.lblWelcomeText1.grid(row=1, column=0, stick='w')
+        self.LABELFRAME_HOME_INSTRUCTIONS = ttk.LabelFrame(self.TAB_HOME, text="Instruções:")
+        self.LABELFRAME_HOME_INSTRUCTIONS.grid(row=1, column=0, stick='w')
 
-        self.lblWelcomeText2 = ttk.Label(self.tabHome, text="Para adicionar uma runa à base de dados, clique em Adicionar Runa.", font=("Arial", 10))
-        self.lblWelcomeText2.grid(row=2, column=0, stick='w')
+        self.LABELFRAME_HOME_OBS = ttk.LabelFrame(self.TAB_HOME, text="Observações: ")
+        self.LABELFRAME_HOME_OBS.grid(row=2, column=0, stick='w')
 
-        self.lblWelcomeText3 = ttk.Label(self.tabHome, text="Para ver as runas disponíveis e seus Momentos de Hu, clique em Mostrar Runas.", font=("Arial", 10))
-        self.lblWelcomeText3.grid(row=3, column=0, stick='w')
+        self.LABEL_HOME_TEXT1 = ttk.Label(self.LABELFRAME_HOME_INSTRUCTIONS, text="Para analisar uma runa e descobrir o que ela significa, clique em Identificar Runa.", font=("Arial", 10), width=100)
+        self.LABEL_HOME_TEXT1.grid(row=0, column=0, stick='w')
+
+        self.LABEL_HOME_TEXT2 = ttk.Label(self.LABELFRAME_HOME_INSTRUCTIONS, text="Para adicionar uma runa à base de dados, clique em Adicionar Runa.", font=("Arial", 10))
+        self.LABEL_HOME_TEXT2.grid(row=1, column=0, stick='w')
+
+        self.LABEL_HOME_TEXT3 = ttk.Label(self.LABELFRAME_HOME_INSTRUCTIONS, text="Para ver as runas disponíveis e seus Momentos de Hu, clique em Mostrar Runas.", font=("Arial", 10))
+        self.LABEL_HOME_TEXT3.grid(row=2, column=0, stick='w')
+
+        self.LABEL_HOME_TEXT4 = ttk.Label(self.LABELFRAME_HOME_OBS, text="Inicialmente, o programa conta com 5 exemplares de cada uma das runas:\n\t- Ansuz\n\t- Fehu\n\t- Gebo\n\t- Kenaz\n\t- Raidho\n\t- Thurisaz\n\t- Uruz\n\t- Wunjo.", width=117)
+        self.LABEL_HOME_TEXT4.grid(row=0, column=0, stick='w')
+
+        self.LABEL_HOME_TEXT5 = ttk.Label(self.LABELFRAME_HOME_OBS, text="Existem várias imagens da mesma runa, para aumentar as chances do algoritmo identificar a runa corretamente.")
+        self.LABEL_HOME_TEXT5.grid(row=1, column=0, stick='w')
+
+        self.LABEL_HOME_TEXT6 = ttk.Label(self.LABELFRAME_HOME_OBS, text="Os Momentos de Hu das runas podem ser vistos na aba Mostrar Runas.")
+        self.LABEL_HOME_TEXT6.grid(row=2, column=0, stick='w')
 
         # ========== Identify rune ==========
 
-        self.lbfAnalyzeImage1 = ttk.LabelFrame(self.tabAnalyze, text="Arquivo: ")
-        self.lbfAnalyzeImage1.grid(row=0, column=0, padx=8, pady=4)
+        self.LABELFRAME_ANALYZE_FILE = ttk.LabelFrame(self.TAB_ANALYZE, text="Arquivo: ")
+        self.LABELFRAME_ANALYZE_FILE.grid(row=0, column=0, padx=8, pady=4)
 
-        self.lbfAnalyzeImage2 = ttk.LabelFrame(self.tabAnalyze)
-        self.lbfAnalyzeImage2.grid(row=1, column=0, padx=8, pady=4)
+        self.LABELFRAME_ANALYZE_BUTTON = ttk.LabelFrame(self.TAB_ANALYZE)
+        self.LABELFRAME_ANALYZE_BUTTON.grid(row=1, column=0, padx=8, pady=4)
 
-        self.lbfAnalyzeImage3 = ttk.LabelFrame(self.tabAnalyze, text="Resultado: ")
-        self.lbfAnalyzeImage3.grid(row=2, column=0, padx=8, pady=4)
+        self.LABELFRAME_ANALYZE_RESULT = ttk.LabelFrame(self.TAB_ANALYZE, text="Resultado: ")
+        self.LABELFRAME_ANALYZE_RESULT.grid(row=2, column=0, padx=8, pady=4)
 
-        self.btnOpenFileAnalyze = ttk.Button(self.lbfAnalyzeImage1, text="Abrir arquivo", image=self.icoUpload, compound=LEFT, command=self.openFileToAnalyze)
-        self.btnOpenFileAnalyze.grid(row=0, column=0, stick='w')
+        self.BUTON_ANALYZE_OPEN = ttk.Button(self.LABELFRAME_ANALYZE_FILE, text="Abrir arquivo", image=self.ICO_UPLOAD, compound=LEFT, command=self.openFileToAnalyze)
+        self.BUTON_ANALYZE_OPEN.grid(row=0, column=0, stick='w')
 
-        self.lblFileAnalyze = ttk.Label(self.lbfAnalyzeImage1, text="Imagem selecionada: ", width=100)
-        self.lblFileAnalyze.grid(row=0, column=1, stick='w')
+        self.LABEL_ANALYZE_FILE = ttk.Label(self.LABELFRAME_ANALYZE_FILE, text="Imagem selecionada: ", width=100)
+        self.LABEL_ANALYZE_FILE.grid(row=0, column=1, stick='w')
 
-        self.btnAnalyze = ttk.Button(self.lbfAnalyzeImage2, text="Analisar Imagem", image=self.icoSearch, compound=LEFT, state=DISABLED, command=self.analyzeImag)
-        self.btnAnalyze.grid(row=0, column=0, stick='w')
+        self.BUTTON_ANALYZE_ANALYZE = ttk.Button(self.LABELFRAME_ANALYZE_BUTTON, text="Analisar Imagem", image=self.ICO_SEARCH, compound=LEFT, state=DISABLED, command=self.analyzeImag)
+        self.BUTTON_ANALYZE_ANALYZE.grid(row=0, column=0, stick='w')
 
-        self.lblResultHuMoments = ttk.Label(self.lbfAnalyzeImage3, width=117)
-        self.lblResultHuMoments.grid(row=0, column=0, columnspan=2, stick='w')
+        self.LABEL_ANALYZE_HU_MOMENTS = ttk.Label(self.LABELFRAME_ANALYZE_RESULT, width=117)
+        self.LABEL_ANALYZE_HU_MOMENTS.grid(row=0, column=0, columnspan=2, stick='w')
 
-        self.lblResult = ttk.Label(self.lbfAnalyzeImage3)
-        self.lblResult.grid(row=1, column=0, columnspan=2, stick='w')
+        self.LABEL_ANALYZE_RESULT = ttk.Label(self.LABELFRAME_ANALYZE_RESULT)
+        self.LABEL_ANALYZE_RESULT.grid(row=1, column=0, columnspan=2, stick='w')
         
-        self.sprResult = ttk.Separator(self.lbfAnalyzeImage3, orient='horizontal')
-        self.sprResult.grid(row=2, column=0, columnspan=2, stick='ew')
+        self.SEPARATOR_ANALYZE_RESULT = ttk.Separator(self.LABELFRAME_ANALYZE_RESULT, orient='horizontal')
+        self.SEPARATOR_ANALYZE_RESULT.grid(row=2, column=0, columnspan=2, stick='ew')
         
-        self.lblResultName = ttk.Label(self.lbfAnalyzeImage3, font=("Arial Bold", 25))
-        self.lblResultName.grid(row=3, column=0, columnspan=2, stick='w')
+        self.LABEL_ANALYZE_RESULT_NAME = ttk.Label(self.LABELFRAME_ANALYZE_RESULT, font=("Arial Bold", 25))
+        self.LABEL_ANALYZE_RESULT_NAME.grid(row=3, column=0, columnspan=2, stick='w')
         
-        self.lblResultDescription = ttk.Label(self.lbfAnalyzeImage3)
-        self.lblResultDescription.grid(row=4, column=0, columnspan=2, stick='w')
+        self.LABEL_ANALYZE_RESULT_DESCRIPTION = ttk.Label(self.LABELFRAME_ANALYZE_RESULT)
+        self.LABEL_ANALYZE_RESULT_DESCRIPTION.grid(row=4, column=0, columnspan=2, stick='w')
 
         # ========== Add rune ==========
 
-        self.lbfAddImage1 = ttk.LabelFrame(self.tabAdd, text="Arquivo: ", width=300)
-        self.lbfAddImage1.grid(row=0, column=0, padx=8, pady=4)
+        self.LABELFRAME_ADD_FILE = ttk.LabelFrame(self.TAB_ADD, text="Arquivo: ", width=300)
+        self.LABELFRAME_ADD_FILE.grid(row=0, column=0, padx=8, pady=4)
         
-        self.lbfAddImage2 = ttk.LabelFrame(self.lbfAddImage1, text="Dados da imagem: ")
-        self.lbfAddImage2.grid(row=1, column=0, padx=8, pady=4, stick='w', columnspan=2)
+        self.LABELFRAME_ADD_DATA = ttk.LabelFrame(self.LABELFRAME_ADD_FILE, text="Dados da imagem: ")
+        self.LABELFRAME_ADD_DATA.grid(row=1, column=0, padx=8, pady=4, stick='w', columnspan=2)
 
-        self.lbfAddImage3 = ttk.LabelFrame(self.tabAdd)
-        self.lbfAddImage3.grid(row=2, column=0, padx=8, pady=4)
+        self.LABELFRAME_ADD_BUTTON = ttk.LabelFrame(self.TAB_ADD)
+        self.LABELFRAME_ADD_BUTTON.grid(row=2, column=0, padx=8, pady=4)
 
-        self.lbfAddImage4 = ttk.LabelFrame(self.tabAdd, text="Resultado:")
-        self.lbfAddImage4.grid(row=3, column=0, padx=8, pady=4)
+        self.LABELFRAME_ADD_RESULT = ttk.LabelFrame(self.TAB_ADD, text="Resultado:")
+        self.LABELFRAME_ADD_RESULT.grid(row=3, column=0, padx=8, pady=4)
 
-        self.btnOpenFileAdd = ttk.Button(self.lbfAddImage1, text="Abrir arquivo", image=self.icoUpload, compound=LEFT, command=self.openFileToAdd)
-        self.btnOpenFileAdd.grid(row=0, column=0, stick='w')
+        self.BUTTON_ADD_OPEN = ttk.Button(self.LABELFRAME_ADD_FILE, text="Abrir arquivo", image=self.ICO_UPLOAD, compound=LEFT, command=self.openFileToAdd)
+        self.BUTTON_ADD_OPEN.grid(row=0, column=0, stick='w')
 
-        self.lblFile = ttk.Label(self.lbfAddImage1, text="Imagem selecionada: ", width=100)
-        self.lblFile.grid(row=0, column=1, stick='e')
+        self.LABEL_ADD_FILE = ttk.Label(self.LABELFRAME_ADD_FILE, text="Imagem selecionada: ", width=100)
+        self.LABEL_ADD_FILE.grid(row=0, column=1, stick='e')
 
-        self.lblName = ttk.Label(self.lbfAddImage2, text="Nome:")
-        self.lblName.grid(row=0, column=0, stick='e', pady=4)
-        self.entName = ttk.Combobox(self.lbfAddImage2, state=DISABLED, values=getRuneNames())
-        self.entName.grid(row=0, column=1, stick='w', pady=4)
+        self.LABEL_ADD_DATA_NAME = ttk.Label(self.LABELFRAME_ADD_DATA, text="Nome:")
+        self.LABEL_ADD_DATA_NAME.grid(row=0, column=0, stick='e', pady=4)
+        self.ENTRY_ADD_DATA_NAME = ttk.Combobox(self.LABELFRAME_ADD_DATA, state=DISABLED, values=getRuneNames())
+        self.ENTRY_ADD_DATA_NAME.grid(row=0, column=1, stick='w', pady=4)
 
-        self.btnAddImg = ttk.Button(self.lbfAddImage3, text="Adicionar Imagem", image=self.icoPlus, compound=LEFT, state=DISABLED, command=self.addImg)
-        self.btnAddImg.grid(row=4, column=0)
+        self.BUTTON_ADD_ADD = ttk.Button(self.LABELFRAME_ADD_BUTTON, text="Adicionar Imagem", image=self.ICO_PLUS, compound=LEFT, state=DISABLED, command=self.addImg)
+        self.BUTTON_ADD_ADD.grid(row=4, column=0)
 
-        self.lblSuccessAddImg1 = ttk.Label(self.lbfAddImage4, width=117)
-        self.lblSuccessAddImg1.grid(row=5, column=0, stick='w', columnspan=2)
+        self.LABEL_ADD_SUCCESS_MESSAGE = ttk.Label(self.LABELFRAME_ADD_RESULT, width=117)
+        self.LABEL_ADD_SUCCESS_MESSAGE.grid(row=5, column=0, stick='w', columnspan=2)
         
-        self.lblSuccessAddImg2 = ttk.Label(self.lbfAddImage4, width=117)
-        self.lblSuccessAddImg2.grid(row=6, column=0, stick='w', columnspan=2)
+        self.LABEL_ADD_SUCCESS_HU_MOMENTS = ttk.Label(self.LABELFRAME_ADD_RESULT, width=117)
+        self.LABEL_ADD_SUCCESS_HU_MOMENTS.grid(row=6, column=0, stick='w', columnspan=2)
 
         # ========== Show runes ==========
-        self.btnRefreshRunes = ttk.Button(self.tabShow, text="Atualizar", image=self.icoRefresh, compound=LEFT, command=self.refreshRunes)
-        self.btnRefreshRunes.grid(row=0, column=0, stick='w')
+        self.BUTTON_SHOW_REFRESH = ttk.Button(self.TAB_SHOW, text="Atualizar", image=self.ICO_REFRESH, compound=LEFT, command=self.refreshRunes)
+        self.BUTTON_SHOW_REFRESH.grid(row=0, column=0, stick='w')
 
-        self.trvRunes = ttk.Treeview(self.tabShow, height=500)
-        self.trvRunes.grid(row=1, column=0, columnspan=2)
+        self.BUTTON_SHOW_DELETE = ttk.Button(self.TAB_SHOW, text="Excluir", image=self.ICO_BIN, compound=LEFT, command=self.refreshRunes)
+        self.BUTTON_SHOW_DELETE.grid(row=0, column=1, stick='e')
+
+        self.TREEVIEW_SHOW_RUNES = ttk.Treeview(self.TAB_SHOW, height=21)
+        self.TREEVIEW_SHOW_RUNES.grid(row=1, column=0, columnspan=2)
         
-        self.trvRunes["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
-        self.trvRunes.column("name", width=100)
-        self.trvRunes.column("hu1", width=90)
-        self.trvRunes.column("hu2", width=90)
-        self.trvRunes.column("hu3", width=90)
-        self.trvRunes.column("hu4", width=90)
-        self.trvRunes.column("hu5", width=90)
-        self.trvRunes.column("hu6", width=90)
-        self.trvRunes.column("hu7", width=90)
-        self.trvRunes.heading("name", text="Nome")
-        self.trvRunes.heading("hu1", text="Hu[1]")
-        self.trvRunes.heading("hu2", text="Hu[2]")
-        self.trvRunes.heading("hu3", text="Hu[3]")
-        self.trvRunes.heading("hu4", text="Hu[4]")
-        self.trvRunes.heading("hu5", text="Hu[5]")
-        self.trvRunes.heading("hu6", text="Hu[6]")
-        self.trvRunes.heading("hu7", text="Hu[7]")
+        self.TREEVIEW_SHOW_RUNES["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
+        self.TREEVIEW_SHOW_RUNES.column("name", width=100)
+        self.TREEVIEW_SHOW_RUNES.column("hu1", width=90)
+        self.TREEVIEW_SHOW_RUNES.column("hu2", width=90)
+        self.TREEVIEW_SHOW_RUNES.column("hu3", width=90)
+        self.TREEVIEW_SHOW_RUNES.column("hu4", width=90)
+        self.TREEVIEW_SHOW_RUNES.column("hu5", width=90)
+        self.TREEVIEW_SHOW_RUNES.column("hu6", width=90)
+        self.TREEVIEW_SHOW_RUNES.column("hu7", width=90)
+        self.TREEVIEW_SHOW_RUNES.heading("name", text="Nome")
+        self.TREEVIEW_SHOW_RUNES.heading("hu1", text="Hu[1]")
+        self.TREEVIEW_SHOW_RUNES.heading("hu2", text="Hu[2]")
+        self.TREEVIEW_SHOW_RUNES.heading("hu3", text="Hu[3]")
+        self.TREEVIEW_SHOW_RUNES.heading("hu4", text="Hu[4]")
+        self.TREEVIEW_SHOW_RUNES.heading("hu5", text="Hu[5]")
+        self.TREEVIEW_SHOW_RUNES.heading("hu6", text="Hu[6]")
+        self.TREEVIEW_SHOW_RUNES.heading("hu7", text="Hu[7]")
 
-        self.trvRunes["show"] = "headings"
+        self.TREEVIEW_SHOW_RUNES["show"] = "headings"
 
         self.refreshRunes()
 
@@ -146,8 +167,8 @@ class AppMain:
         elif self.filename.split('.')[-1] not in ('png', 'jpg'):
             messagebox.showinfo("Arquivo inválido!", "O arquivo deve ser uma imagem.")
         else:
-            self.lblFileAnalyze["text"] = "Imagem selecionada: " + self.filename
-            self.btnAnalyze["state"] = NORMAL
+            self.LABEL_ANALYZE_FILE["text"] = "Imagem selecionada: " + self.filename
+            self.BUTTON_ANALYZE_ANALYZE["state"] = NORMAL
 
     def openFileToAdd(self):
         self.filename = filedialog.askopenfilename()
@@ -157,48 +178,53 @@ class AppMain:
         elif self.filename.split('.')[-1] not in ('png', 'jpg', 'gif'):
             messagebox.showinfo("Arquivo inválido!", "O arquivo deve ser uma imagem.")
         else:
-            self.lblFile["text"] = "Imagem selecionada: " + self.filename
-            self.btnAddImg["state"] = NORMAL
-            self.entName["state"] = NORMAL
+            self.LABEL_ADD_FILE["text"] = "Imagem selecionada: " + self.filename
+            self.BUTTON_ADD_ADD["state"] = NORMAL
+            self.ENTRY_ADD_DATA_NAME["state"] = NORMAL
 
     def analyzeImag(self):
         result = identifyImg(self.filename)
         rune = getRune(result[0])[0]
         precision = 0 - result[1]
 
-        self.lblResultHuMoments["text"] = "Momentos de Hu: ["
-        for i in range(2, 8):
-            self.lblResultHuMoments["text"] += str(round(rune[i], 6)) + ", "
-        self.lblResultHuMoments["text"] += str(round(rune[7], 6)) + "]"
+        huMoments = calcHuMoments(self.filename)
 
-        self.lblResult["text"] = "Encontrada runa com " + str(precision) + " de desvio."
+        self.LABEL_ANALYZE_HU_MOMENTS["text"] = "Momentos de Hu: ["
+        for i in range(0, 6):
+            self.LABEL_ANALYZE_HU_MOMENTS["text"] += str(round(huMoments[i], 6)) + ", "
+        self.LABEL_ANALYZE_HU_MOMENTS["text"] += str(round(huMoments[6], 6)) + "]"
+
+        self.LABEL_ANALYZE_RESULT["text"] = "Encontrada runa com " + str(precision) + " de desvio." + "\n"
+        self.LABEL_ANALYZE_RESULT["text"] += "Momentos de Hu da runa encontrada: ["
+        for i in range(2, 8):
+            self.LABEL_ANALYZE_RESULT["text"] += str(round(rune[i], 6)) + ", "
+        self.LABEL_ANALYZE_RESULT["text"] += str(round(rune[7], 6)) + "]"
+
+
+        self.LABEL_ANALYZE_RESULT_NAME["text"] = rune[0]
         
-        self.lblResultName["text"] = rune[0]
-        
-        self.lblResultDescription["text"] = rune[1]
+        self.LABEL_ANALYZE_RESULT_DESCRIPTION["text"] = rune[1]
 
     def addImg(self):
-        if self.entName.get() == '':
+        if self.ENTRY_ADD_DATA_NAME.get() == '':
             messagebox.showinfo("Atenção!", "Todos os campos devem ser preenchidos.")
         else:
-            huMoments = addImg(self.filename, getIdRuneInfo(self.entName.get()))
+            huMoments = addImg(self.filename, getIdRuneInfo(self.ENTRY_ADD_DATA_NAME.get()))
 
-            self.btnAddImg["state"] = DISABLED
-            self.entName["state"] = DISABLED
+            self.BUTTON_ADD_ADD["state"] = DISABLED
+            self.ENTRY_ADD_DATA_NAME["state"] = DISABLED
 
-            self.lblSuccessAddImg1["text"] = "Imagem adicionada com sucesso!"
-            self.lblSuccessAddImg2["text"] = "Momentos de Hu: ["
+            self.LABEL_ADD_SUCCESS_MESSAGE["text"] = "Imagem adicionada com sucesso!"
+            self.LABEL_ADD_SUCCESS_HU_MOMENTS["text"] = "Momentos de Hu: ["
             for i in range(0, 6):
-                self.lblSuccessAddImg2["text"] += str(round(huMoments[i], 6)) + ", "
-            self.lblSuccessAddImg2["text"] += str(round(huMoments[6], 6)) + "]"
+                self.LABEL_ADD_SUCCESS_HU_MOMENTS["text"] += str(round(huMoments[i], 6)) + ", "
+            self.LABEL_ADD_SUCCESS_HU_MOMENTS["text"] += str(round(huMoments[6], 6)) + "]"
 
     def refreshRunes(self):
-        for item in self.trvRunes.get_children():
-            self.trvRunes.delete(item)
-
-        # runes = searchAvgRunes()
+        for item in self.TREEVIEW_SHOW_RUNES.get_children():
+            self.TREEVIEW_SHOW_RUNES.delete(item)
         runes = searchAllRunes()
         i = 0
         for rune in runes:
-            self.trvRunes.insert("", i, values=(rune[1], round(rune[2], 6), round(rune[3], 6), round(rune[4], 6), round(rune[5], 6), round(rune[6], 6), round(rune[7], 6), round(rune[8], 6)))
+            self.TREEVIEW_SHOW_RUNES.insert("", i, values=(rune[1], round(rune[2], 6), round(rune[3], 6), round(rune[4], 6), round(rune[5], 6), round(rune[6], 6), round(rune[7], 6), round(rune[8], 6)))
             i += 1
