@@ -2,7 +2,7 @@ from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVa
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END, BOTTOM
 from tkinter import ttk
 from img_process import identifyImg, addImg, calcHuMoments
-from db_util import searchAvgRunes, searchAllRunes, getRune, getRuneNames, getIdRuneInfo
+from db_util import searchAvgRunes, searchAllRunes, getRune, getRuneNames, getIdRuneInfo, delRune
 
 class AppMain:
     def __init__(self, parent):
@@ -131,14 +131,15 @@ class AppMain:
         self.BUTTON_SHOW_REFRESH = ttk.Button(self.TAB_SHOW, text="Atualizar", image=self.ICO_REFRESH, compound=LEFT, command=self.refreshRunes)
         self.BUTTON_SHOW_REFRESH.grid(row=0, column=0, stick='w')
 
-        self.BUTTON_SHOW_DELETE = ttk.Button(self.TAB_SHOW, text="Excluir", image=self.ICO_BIN, compound=LEFT, command=self.refreshRunes)
+        self.BUTTON_SHOW_DELETE = ttk.Button(self.TAB_SHOW, text="Excluir", image=self.ICO_BIN, compound=LEFT, command=self.deleteRune)
         self.BUTTON_SHOW_DELETE.grid(row=0, column=1, stick='e')
 
         self.TREEVIEW_SHOW_RUNES = ttk.Treeview(self.TAB_SHOW, height=21)
         self.TREEVIEW_SHOW_RUNES.grid(row=1, column=0, columnspan=2)
         
-        self.TREEVIEW_SHOW_RUNES["columns"] = ("name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
-        self.TREEVIEW_SHOW_RUNES.column("name", width=100)
+        self.TREEVIEW_SHOW_RUNES["columns"] = ("id", "name", "hu1", "hu2", "hu3", "hu4", "hu5", "hu6", "hu7")
+        self.TREEVIEW_SHOW_RUNES.column("id", width=10)
+        self.TREEVIEW_SHOW_RUNES.column("name", width=90)
         self.TREEVIEW_SHOW_RUNES.column("hu1", width=90)
         self.TREEVIEW_SHOW_RUNES.column("hu2", width=90)
         self.TREEVIEW_SHOW_RUNES.column("hu3", width=90)
@@ -146,6 +147,7 @@ class AppMain:
         self.TREEVIEW_SHOW_RUNES.column("hu5", width=90)
         self.TREEVIEW_SHOW_RUNES.column("hu6", width=90)
         self.TREEVIEW_SHOW_RUNES.column("hu7", width=90)
+        self.TREEVIEW_SHOW_RUNES.heading("id", text="ID")
         self.TREEVIEW_SHOW_RUNES.heading("name", text="Nome")
         self.TREEVIEW_SHOW_RUNES.heading("hu1", text="Hu[1]")
         self.TREEVIEW_SHOW_RUNES.heading("hu2", text="Hu[2]")
@@ -165,7 +167,7 @@ class AppMain:
         if self.filename == '':
             pass
         elif self.filename.split('.')[-1] not in ('png', 'jpg'):
-            messagebox.showinfo("Arquivo inválido!", "O arquivo deve ser uma imagem.")
+            messagebox.showerror("Identificador de Runas", "O arquivo deve ser uma imagem.")
         else:
             self.LABEL_ANALYZE_FILE["text"] = "Imagem selecionada: " + self.filename
             self.BUTTON_ANALYZE_ANALYZE["state"] = NORMAL
@@ -176,7 +178,7 @@ class AppMain:
         if self.filename == '':
             pass
         elif self.filename.split('.')[-1] not in ('png', 'jpg', 'gif'):
-            messagebox.showinfo("Arquivo inválido!", "O arquivo deve ser uma imagem.")
+            messagebox.showerror("Identificador de Runas", "O arquivo deve ser uma imagem.")
         else:
             self.LABEL_ADD_FILE["text"] = "Imagem selecionada: " + self.filename
             self.BUTTON_ADD_ADD["state"] = NORMAL
@@ -194,7 +196,7 @@ class AppMain:
             self.LABEL_ANALYZE_HU_MOMENTS["text"] += str(round(huMoments[i], 6)) + ", "
         self.LABEL_ANALYZE_HU_MOMENTS["text"] += str(round(huMoments[6], 6)) + "]"
 
-        self.LABEL_ANALYZE_RESULT["text"] = "Encontrada runa com " + str(precision) + " de desvio." + "\n"
+        self.LABEL_ANALYZE_RESULT["text"] = "Encontrada runa com " + str(round(precision, 6)) + " de desvio." + "\n"
         self.LABEL_ANALYZE_RESULT["text"] += "Momentos de Hu da runa encontrada: ["
         for i in range(2, 8):
             self.LABEL_ANALYZE_RESULT["text"] += str(round(rune[i], 6)) + ", "
@@ -207,7 +209,7 @@ class AppMain:
 
     def addImg(self):
         if self.ENTRY_ADD_DATA_NAME.get() == '':
-            messagebox.showinfo("Atenção!", "Todos os campos devem ser preenchidos.")
+            messagebox.showerror("Identificador de Runas", "Todos os campos devem ser preenchidos.")
         else:
             huMoments = addImg(self.filename, getIdRuneInfo(self.ENTRY_ADD_DATA_NAME.get()))
 
@@ -226,5 +228,13 @@ class AppMain:
         runes = searchAllRunes()
         i = 0
         for rune in runes:
-            self.TREEVIEW_SHOW_RUNES.insert("", i, values=(rune[1], round(rune[2], 6), round(rune[3], 6), round(rune[4], 6), round(rune[5], 6), round(rune[6], 6), round(rune[7], 6), round(rune[8], 6)))
+            self.TREEVIEW_SHOW_RUNES.insert("", i, values=(rune[0], rune[1], round(rune[2], 6), round(rune[3], 6), round(rune[4], 6), round(rune[5], 6), round(rune[6], 6), round(rune[7], 6), round(rune[8], 6)))
             i += 1
+
+    def deleteRune(self):
+        currentRune = self.TREEVIEW_SHOW_RUNES.focus()
+        try:
+            delRune(int(self.TREEVIEW_SHOW_RUNES.item(currentRune)["values"][0]))
+            self.refreshRunes()
+        except:
+            messagebox.showerror("Identificador de Runas", "Selecione uma runa para excluir.")

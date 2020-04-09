@@ -105,3 +105,13 @@ def getIdRuneInfo(name):
     )
     idRuneInfo = cursor.fetchall()[0][0]
     return idRuneInfo
+
+def delRune(idRune):
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute(
+        """DELETE FROM TRune WHERE id_rune = (? )""",
+        (idRune, )
+    )
+    conn.commit()
+    conn.close()
