@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from tkinter import Frame, Button, Label, Text, filedialog, messagebox, DoubleVar, PhotoImage
 from tkinter import LEFT, RIGHT, TOP, X, DISABLED, NORMAL, BOTH, HORIZONTAL, END, BOTTOM
 from tkinter import ttk

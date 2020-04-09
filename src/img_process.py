@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy
 import matplotlib.pyplot as plt
 from cv2 import imread, IMREAD_GRAYSCALE, THRESH_BINARY, moments, HuMoments, threshold
